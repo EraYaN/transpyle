@@ -161,6 +161,11 @@ class CppSwigCompiler(SwigCompiler):
             self.py_config['LIBPL'], self.py_config['LIBDIR'], ldlibrary, self.py_config['LIBS'],
             self.py_config['SYSLIBS'], self.py_config['LINKFORSHARED']).split()
         flags = [_.strip() for _ in flags if _.strip()]
+        bad_flag = '-Wl,-stack_size,1000000'
+        if bad_flag in flags:
+            _LOG.warning('removing the mistaken flag "%s" from compiler command-line', bad_flag)
+            # TODO: what the hell are the correct flags actually?
+            # del flags[flags.index(bad_flag)]  # TODO: this breaks Python on MacOS
         linker_args = ['-fPIC', *flags,
                        '-shared', str(path.with_suffix('.o')), str(wrapper_path.with_suffix('.o')),
                        '-o', '{}'.format(path.with_name('_' + path.name).with_suffix('.so'))]
